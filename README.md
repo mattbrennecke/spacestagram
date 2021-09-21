@@ -2,7 +2,7 @@
 
 A React App for viewing images from [NASA's Astronomy Picture of the Day (APOD) API](https://github.com/nasa/apod-api).
 
-Hosted at [mattbrennecke.github.io/spacestagram/](https://mattbrennecke.github.io/spacestagram/).
+Hosted at [mattbrennecke.github.io/spacestagram/](https://mattbrennecke.github.io/spacestagram/)
 
 This project was bootstrapped with the [Create React App](https://github.com/facebook/create-react-app).
 
