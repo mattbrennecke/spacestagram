@@ -1,15 +1,119 @@
 import './App.css';
-import {Page} from '@shopify/polaris';
+import {Page, DatePicker, Button, Card, ButtonGroup} from '@shopify/polaris';
 import '@shopify/polaris/dist/styles.css';
 import ImageCard from './ImageCard';
+import { useEffect, useState, useCallback } from 'react';
 
 function App() {
-  return (
-    <Page title="Spacestagram" subtitle="Brought to you by NASA's image API.">
-      <ImageCard imgsrc="./logo512.png" />
-      <ImageCard imgsrc="./logo192.png" />
-    </Page>
+  const [error, setError] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [apiData, setApiData] = useState([]);
+  const currentDate = new Date();
+  const startingDate = new Date();
+  startingDate.setDate(startingDate.getDate()-6);
+  const [selectedDates, setSelectedDates] = useState({
+    start: startingDate,
+    end: currentDate,
+  });
+  const [{month, year}, setDate] = useState({month: currentDate.getMonth(), year: currentDate.getFullYear()});
+  const [orderNewestFirst, setOrderNewestFirst] = useState(true);
+
+  const handleFirstButtonClick = useCallback(() => {
+    if (orderNewestFirst) return;
+    setOrderNewestFirst(true);
+    setLoaded(false);
+    // eslint-disable-next-line
+  }, [orderNewestFirst]);
+
+  const handleSecondButtonClick = useCallback(() => {
+    if (!orderNewestFirst) return;
+    setOrderNewestFirst(false);
+    setLoaded(false);
+    // eslint-disable-next-line
+  }, [orderNewestFirst]);
+
+  const handleMonthChange = useCallback(
+    (month, year) => setDate({month, year}),
+    [],
   );
+
+  useEffect(() => {
+    fetch("https://api.nasa.gov/planetary/apod?start_date=" + selectedDates.start.toISOString().split('T')[0] + "&end_date=" + selectedDates.end.toISOString().split('T')[0] + "&api_key=uNyJYzbkG5g7PtOmPReYFiqARukERJKzwh3hQHM3")
+      .then(
+        (response) => {
+          if(response.ok){
+            //throw(Error(response.statusText));
+            return(response.json());
+          }
+          else{
+            throw(Error(response.statusText));
+          }
+        }
+      )
+      .then(
+        (data) => {
+          if(orderNewestFirst){
+            setApiData(data.reverse());
+            setLoaded(true);
+          }
+          else{
+            setApiData(data);
+            setLoaded(true);
+
+          }
+        }
+      )
+      .catch(
+        (thrownError) => {
+          console.log(thrownError);
+          setError(true);
+        }
+      )
+      // eslint-disable-next-line
+  }, [loaded])
+
+  if(error){
+    return(
+      <Page title="Spacestagram" subtitle="Brought to you by NASA's Astronomy Picture of the Day (APOD) API.">
+        <ImageCard textOnly="true" description="Error loading data from NASA API. Error logged to console." />
+      </Page>
+    );
+  }
+  else if (!loaded){
+    return(
+      <Page title="Spacestagram" subtitle="Brought to you by NASA's Astronomy Picture of the Day (APOD) API.">
+        <ImageCard textOnly="true" description="Loading..." />
+      </Page>
+    );
+  }
+  else{
+    return(
+      <Page title="Spacestagram" subtitle="Brought to you by NASA's Astronomy Picture of the Day (APOD) API.">
+        <Card>
+          <DatePicker
+            month={month}
+            year={year}
+            onChange={setSelectedDates}
+            onMonthChange={handleMonthChange}
+            selected={selectedDates}
+            disableDatesBefore={new Date(1995, 5, 17)}
+            disableDatesAfter={currentDate}
+            allowRange
+          />
+          <Button onClick={() => setLoaded(false)}>Update Images for Selected Dates</Button>
+          <ButtonGroup>
+            <Button pressed={orderNewestFirst} onClick={handleFirstButtonClick}>Show Newest Images First</Button>
+            <Button pressed={!orderNewestFirst} onClick={handleSecondButtonClick}>Show Oldest Images First</Button>
+          </ButtonGroup>
+        </Card>
+
+        {apiData.map((entry) => (
+          <ImageCard title={entry.title} date={entry.date} description={entry.explanation} imgSrc={entry.url} textOnly="false" key={entry.url}/>
+        ))}
+      </Page>
+    );
+  }
 }
+
 
 export default App;
