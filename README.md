@@ -1,4 +1,6 @@
-# Getting Started with Create React App
+# Spacestagram
+
+A React App for viewing images from [NASA's Astronomy Picture of the Day (APOD) API](https://github.com/nasa/apod-api).
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
