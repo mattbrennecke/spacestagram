@@ -20,15 +20,15 @@ function App() {
 
   const handleFirstButtonClick = useCallback(() => {
     if (orderNewestFirst) return;
-    setOrderNewestFirst(true);
     setLoaded(false);
+    setOrderNewestFirst(true);
     // eslint-disable-next-line
   }, [orderNewestFirst]);
 
   const handleSecondButtonClick = useCallback(() => {
     if (!orderNewestFirst) return;
-    setOrderNewestFirst(false);
     setLoaded(false);
+    setOrderNewestFirst(false);
     // eslint-disable-next-line
   }, [orderNewestFirst]);
 
@@ -37,12 +37,31 @@ function App() {
     [],
   );
 
+  const dateNavCard = (
+    <Card>
+      <DatePicker
+        month={month}
+        year={year}
+        onChange={setSelectedDates}
+        onMonthChange={handleMonthChange}
+        selected={selectedDates}
+        disableDatesBefore={new Date(1995, 5, 17)}
+        disableDatesAfter={currentDate}
+        allowRange
+      />
+      <Button onClick={() => setLoaded(false)}>Update Images for Selected Dates</Button>
+      <ButtonGroup>
+        <Button pressed={orderNewestFirst} onClick={handleFirstButtonClick}>Show Newest Images First</Button>
+        <Button pressed={!orderNewestFirst} onClick={handleSecondButtonClick}>Show Oldest Images First</Button>
+      </ButtonGroup>
+    </Card>
+  );
+
   useEffect(() => {
     fetch("https://api.nasa.gov/planetary/apod?start_date=" + selectedDates.start.toISOString().split('T')[0] + "&end_date=" + selectedDates.end.toISOString().split('T')[0] + "&api_key=uNyJYzbkG5g7PtOmPReYFiqARukERJKzwh3hQHM3")
       .then(
         (response) => {
           if(response.ok){
-            //throw(Error(response.statusText));
             return(response.json());
           }
           else{
@@ -75,6 +94,7 @@ function App() {
   if(error){
     return(
       <Page title="Spacestagram" subtitle="Brought to you by NASA's Astronomy Picture of the Day (APOD) API.">
+        {dateNavCard}
         <ImageCard textOnly="true" description="Error loading data from NASA API. Error logged to console." />
       </Page>
     );
@@ -82,6 +102,7 @@ function App() {
   else if (!loaded){
     return(
       <Page title="Spacestagram" subtitle="Brought to you by NASA's Astronomy Picture of the Day (APOD) API.">
+        {dateNavCard}
         <ImageCard textOnly="true" description="Loading..." />
       </Page>
     );
@@ -89,26 +110,9 @@ function App() {
   else{
     return(
       <Page title="Spacestagram" subtitle="Brought to you by NASA's Astronomy Picture of the Day (APOD) API.">
-        <Card>
-          <DatePicker
-            month={month}
-            year={year}
-            onChange={setSelectedDates}
-            onMonthChange={handleMonthChange}
-            selected={selectedDates}
-            disableDatesBefore={new Date(1995, 5, 17)}
-            disableDatesAfter={currentDate}
-            allowRange
-          />
-          <Button onClick={() => setLoaded(false)}>Update Images for Selected Dates</Button>
-          <ButtonGroup>
-            <Button pressed={orderNewestFirst} onClick={handleFirstButtonClick}>Show Newest Images First</Button>
-            <Button pressed={!orderNewestFirst} onClick={handleSecondButtonClick}>Show Oldest Images First</Button>
-          </ButtonGroup>
-        </Card>
-
+        {dateNavCard}       
         {apiData.map((entry) => (
-          <ImageCard title={entry.title} date={entry.date} description={entry.explanation} imgSrc={entry.url} textOnly="false" key={entry.url}/>
+          <ImageCard title={entry.title} date={entry.date} description={entry.explanation} imgSrc={entry.url} textOnly="false" key={entry.title}/>
         ))}
       </Page>
     );
