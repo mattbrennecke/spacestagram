@@ -5,9 +5,12 @@ import ImageCard from './ImageCard';
 import { useEffect, useState, useCallback } from 'react';
 
 function App() {
+  //general variables
   const [error, setError] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [apiData, setApiData] = useState([]);
+
+  //date picker variables
   const currentDate = new Date();
   const startingDate = new Date();
   startingDate.setDate(startingDate.getDate()-6);
@@ -18,13 +21,17 @@ function App() {
   const [{month, year}, setDate] = useState({month: currentDate.getMonth(), year: currentDate.getFullYear()});
   const [orderNewestFirst, setOrderNewestFirst] = useState(true);
 
+  //date picker and sort button handlers
+  const handleMonthChange = useCallback(
+    (month, year) => setDate({month, year}),
+    [],
+  );
   const handleFirstButtonClick = useCallback(() => {
     if (orderNewestFirst) return;
     setLoaded(false);
     setOrderNewestFirst(true);
     // eslint-disable-next-line
   }, [orderNewestFirst]);
-
   const handleSecondButtonClick = useCallback(() => {
     if (!orderNewestFirst) return;
     setLoaded(false);
@@ -32,11 +39,7 @@ function App() {
     // eslint-disable-next-line
   }, [orderNewestFirst]);
 
-  const handleMonthChange = useCallback(
-    (month, year) => setDate({month, year}),
-    [],
-  );
-
+  //element for rendering date picker and sort buttons
   const dateNavCard = (
     <Card>
       <DatePicker
@@ -57,6 +60,7 @@ function App() {
     </Card>
   );
 
+  //Call NASA API and store response when loaded variable changes
   useEffect(() => {
     fetch("https://api.nasa.gov/planetary/apod?start_date=" + selectedDates.start.toISOString().split('T')[0] + "&end_date=" + selectedDates.end.toISOString().split('T')[0] + "&api_key=uNyJYzbkG5g7PtOmPReYFiqARukERJKzwh3hQHM3")
       .then(
@@ -91,6 +95,7 @@ function App() {
       // eslint-disable-next-line
   }, [loaded])
 
+  //conditionally return components to be rendered
   if(error){
     return(
       <Page title="Spacestagram" subtitle="Brought to you by NASA's Astronomy Picture of the Day (APOD) API.">

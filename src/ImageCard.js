@@ -5,12 +5,12 @@ import {useState} from 'react';
 function ImageCard(props) {
   const [likeString, setLikeString] = useState("Like");
 
+  //conditionally render based on textOnly prop
   if(props.textOnly === "true"){
     return (
       <MediaCard portrait description={props.description} />
     );
   }
-
   else{
     return (
       <MediaCard
