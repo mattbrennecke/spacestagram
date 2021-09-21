@@ -25,7 +25,7 @@ function ImageCard(props) {
           }}
           description={props.description}
           >
-          <img alt="" width="100%" height="100%" src={props.imgSrc} style={{objectFit:'cover', objectPosition:'center'}} />
+          <img alt={props.title} width="100%" height="100%" src={props.imgSrc} style={{objectFit:'cover', objectPosition:'center'}} />
       </MediaCard>
     );
   }
